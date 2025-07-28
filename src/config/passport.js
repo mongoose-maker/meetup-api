@@ -1,7 +1,7 @@
-require("dotenv").config();
-const passport = require("passport");
-const { Strategy: JwtStrategy, ExtractJwt } = require("passport-jwt");
-const userModel = require("../models/user.model");
+import "dotenv/config";
+import passport from "passport";
+import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
+import userModel from "../models/user.model.js";
 
 const opts = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -20,4 +20,4 @@ passport.use(
   })
 );
 
-module.exports = passport;
+export default passport;

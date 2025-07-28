@@ -1,8 +1,8 @@
-const Joi = require("joi");
+import Joi from "joi";
 
-const idSchema = Joi.number().integer().positive().required();
+export const idSchema = Joi.number().integer().positive().required();
 
-const meetupSchema = Joi.object({
+export const meetupSchema = Joi.object({
   title: Joi.string().min(3).max(100).required(),
   description: Joi.string().min(10).max(500).required(),
   tags: Joi.array().items(Joi.string()).min(1).required(),
@@ -10,7 +10,7 @@ const meetupSchema = Joi.object({
   location: Joi.string().min(3).max(100).required(),
 });
 
-const updateMeetupSchema = Joi.object({
+export const updateMeetupSchema = Joi.object({
   title: Joi.string().min(3).max(100),
   description: Joi.string().min(10).max(500),
   tags: Joi.array().items(Joi.string()).min(1),
@@ -18,7 +18,7 @@ const updateMeetupSchema = Joi.object({
   location: Joi.string().min(3).max(100),
 }).min(1);
 
-module.exports = {
+export default {
   meetupSchema,
   updateMeetupSchema,
   idSchema,

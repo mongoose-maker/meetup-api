@@ -1,3 +1,3 @@
-const passport = require("../config/passport");
+import passport from "../config/passport.js";
 
-module.exports = passport.authenticate("jwt", { session: false });
+export default passport.authenticate("jwt", { session: false });

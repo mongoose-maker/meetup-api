@@ -1,106 +1,9 @@
-// const meetupModel = require("../models/meetup.model");
-// const {
-//   meetupSchema,
-//   updateMeetupSchema,
-//   idSchema,
-// } = require("../validators/meetup.validators");
-
-// const getAllMeetups = (req, res) => {
-//   const { tag, sort, page = 1, limit = 10 } = req.query;
-//   let results = [...meetupModel.gatAll()];
-//   //фильтрация по тегу
-//   if (tag) {
-//     results.filter((m) => m.tags.includes(tag));
-//   }
-//   //Сортировка
-//   if (sort === "title") {
-//     results.sort((a, b) => a.title.localeCompare(b.title));
-//   } else if (sort === "date") {
-//     results.sort((a, b) => new Date(a.date) - new Date(b.date));
-//   }
-//   //Пагинация
-//   const pageInt = parseInt(page);
-//   const limitInt = parseInt(limit);
-//   const start = (pageInt - 1) * limitInt;
-//   const paginated = results.slice(start, start + limitInt);
-
-//   res.json({
-//     total: results.length,
-//     page: pageInt,
-//     limit: limitInt,
-//     data: paginated,
-//   });
-// };
-
-// const getMeetupById = (req, res) => {
-//   const id = Number(req.params.id);
-//   const { error } = idSchema.validate(id);
-//   if (error) {
-//     return res.status(404).json({ message: "Incorrect ID" });
-//   }
-//   const meetup = meetupModel.getById(id);
-//   if (!meetup) {
-//     return res.status(404).json({ message: "Meetup not found" });
-//   }
-//   res.json(meetup);
-// };
-
-// const createMeetup = (req, res) => {
-//   const { error, value } = meetupSchema.validate(req.body, {
-//     abortEarly: false,
-//   });
-//   if (error) {
-//     return res.status(400).json({ message: error.details[0].message });
-//   }
-//   const newMeetup = meetupModel.create(value);
-//   res.status(201).json(newMeetup);
-// };
-
-// const updateMeetup = (req, res) => {
-//   const id = Number(req.params.id);
-//   const { error: idError } = idSchema.validate(id);
-//   const { error: bodyError, value } = updateMeetupSchema.validate(req.body);
-//   if (idError) {
-//     return res.status(404).json({ message: "Incorrect ID" });
-//   }
-//   if (bodyError) {
-//     return res.status(404).json({ message: bodyError.details[0].message });
-//   }
-//   const updated = meetupModel.update(id, value);
-//   if (!updated) {
-//     return res.status(404).json({ message: "Meetup not found}" });
-//   }
-//   res.json(updated);
-// };
-
-// const deleteMeetup = (req, res) => {
-//   const id = Number(req.params.id);
-//   const { error } = idSchema.validate(id);
-//   if (error) {
-//     return res.status(400).json({ message: "Incorrect ID" });
-//   }
-//   const success = meetupModel.remove(id);
-//   if (!success) {
-//     return res.status(404).json({ message: "Meetup not found" });
-//   }
-//   res.json({ message: "Meetup deleted" });
-// };
-
-// module.exports = {
-//   getAllMeetups,
-//   getMeetupById,
-//   createMeetup,
-//   updateMeetup,
-//   deleteMeetup,
-// };
-
-// src/controllers/meetup.controller.js
-const meetupModel = require("../models/meetup.model");
-const {
+import meetupModel from "../models/meetup.model.js";
+import {
   meetupSchema,
   updateMeetupSchema,
   idSchema,
-} = require("../validators/meetup.validators");
+} from "../validators/meetup.validators.js";
 
 /* ------------------------- GET /api/meetups ------------------------- */
 const getAllMeetups = async (req, res) => {
@@ -228,7 +131,7 @@ const deleteMeetup = async (req, res) => {
 };
 
 /* ------------------------- export --------------------------------- */
-module.exports = {
+export default {
   getAllMeetups,
   getMeetupById,
   createMeetup,

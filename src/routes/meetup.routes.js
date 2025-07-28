@@ -1,9 +1,9 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
 
-const meetupController = require("../controllers/meetup.controllers");
-const isAuth = require("../middleware/auth.middleware");
-const isOrganizer = require("../middleware/role.middleware");
+import meetupController from "../controllers/meetup.controllers.js";
+import isAuth from "../middleware/auth.middleware.js";
+import isOrganizer from "../middleware/role.middleware.js";
 
 router.get("/", meetupController.getAllMeetups);
 router.get("/:id", meetupController.getMeetupById);
@@ -17,4 +17,4 @@ router.put("/:id", isAuth, isOrganizer, meetupController.updateMeetup);
 //router.delete("/:id", meetupController.deleteMeetup);
 router.delete("/:id", isAuth, isOrganizer, meetupController.deleteMeetup);
 
-module.exports = router;
+export default router;

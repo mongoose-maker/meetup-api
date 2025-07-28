@@ -1,6 +1,6 @@
-const jwt = require("jsonwebtoken");
-const userModel = require("../models/user.model");
-const Joi = require("joi");
+import jwt from "jsonwebtoken";
+import userModel from "../models/user.model.js";
+import Joi from "joi";
 
 const registerSchema = Joi.object({
   username: Joi.string().min(3).max(30).required(),
@@ -16,7 +16,7 @@ const loginSchema = Joi.object({
 });
 
 /* POST /auth/register */
-exports.register = async (req, res) => {
+const register = async (req, res) => {
   // ① Валидируем вход
   const { error, value } = registerSchema.validate(req.body);
   if (error) return res.status(400).json({ message: error.details[0].message });
@@ -38,7 +38,7 @@ exports.register = async (req, res) => {
 };
 
 /* POST /auth/login */
-exports.login = async (req, res) => {
+const login = async (req, res) => {
   const { error, value } = loginSchema.validate(req.body);
   if (error) return res.status(400).json({ message: error.message });
 
@@ -66,7 +66,9 @@ exports.login = async (req, res) => {
 };
 
 /* GET /auth/me  (защищённый) */
-exports.me = (req, res) => {
+const me = (req, res) => {
   // passport добавит user в req.user
   res.json(req.user);
 };
+
+export default { register, login, me };
