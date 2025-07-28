@@ -8,13 +8,10 @@ import {
 /* ------------------------- GET /api/meetups ------------------------- */
 const getAllMeetups = async (req, res) => {
   try {
-    // query‑строка: /api/meetups?tags=js,async&sort=-date&page=2&limit=5
     const { tags, sort, page = 1, limit = 10 } = req.query;
 
-    // Все митапы из базы
     let results = await meetupModel.getAll();
 
-    /* ---- фильтрация по нескольким тегам (регистр игнорируем) ---- */
     if (tags) {
       const tagList = tags
         .toLowerCase()
@@ -25,7 +22,6 @@ const getAllMeetups = async (req, res) => {
       );
     }
 
-    /* ---------------------- сортировка --------------------------- */
     if (sort) {
       const isDesc = sort.startsWith("-");
       const key = isDesc ? sort.slice(1) : sort;
@@ -46,7 +42,6 @@ const getAllMeetups = async (req, res) => {
       });
     }
 
-    /* ---------------------- пагинация ---------------------------- */
     const p = parseInt(page, 10);
     const l = parseInt(limit, 10);
     const start = (p - 1) * l;
@@ -64,7 +59,6 @@ const getAllMeetups = async (req, res) => {
   }
 };
 
-/* -------------------- GET /api/meetups/:id ------------------------- */
 const getMeetupById = async (req, res) => {
   const id = Number(req.params.id);
   const { error } = idSchema.validate(id);
@@ -80,7 +74,6 @@ const getMeetupById = async (req, res) => {
   }
 };
 
-/* --------------------- POST /api/meetups --------------------------- */
 const createMeetup = async (req, res) => {
   const { error, value } = meetupSchema.validate(req.body);
   if (error) return res.status(400).json({ message: error.details[0].message });
@@ -94,7 +87,6 @@ const createMeetup = async (req, res) => {
   }
 };
 
-/* ------------------- PUT /api/meetups/:id -------------------------- */
 const updateMeetup = async (req, res) => {
   const id = Number(req.params.id);
   const { error: idErr } = idSchema.validate(id);
@@ -114,7 +106,6 @@ const updateMeetup = async (req, res) => {
   }
 };
 
-/* ----------------- DELETE /api/meetups/:id ------------------------- */
 const deleteMeetup = async (req, res) => {
   const id = Number(req.params.id);
   const { error } = idSchema.validate(id);
@@ -130,7 +121,6 @@ const deleteMeetup = async (req, res) => {
   }
 };
 
-/* ------------------------- export --------------------------------- */
 export default {
   getAllMeetups,
   getMeetupById,

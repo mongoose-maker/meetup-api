@@ -1,35 +1,17 @@
 import jwt from "jsonwebtoken";
 import userModel from "../models/user.model.js";
-import Joi from "joi";
+import { registerSchema, loginSchema } from "../validators/auth.validators.js";
 
-const registerSchema = Joi.object({
-  username: Joi.string().min(3).max(30).required(),
-  email: Joi.string().email().required(),
-  password: Joi.string().min(6).required(),
-  role: Joi.string().valid("user", "organizer").default("user"),
-  // Клиент не отправляет роль! Роль выставим вручную = 'user
-});
-
-const loginSchema = Joi.object({
-  email: Joi.string().email().required(),
-  password: Joi.string().required(),
-});
-
-/* POST /auth/register */
 const register = async (req, res) => {
-  // ① Валидируем вход
   const { error, value } = registerSchema.validate(req.body);
   if (error) return res.status(400).json({ message: error.details[0].message });
 
   try {
-    // ② Проверяем, нет ли уже такого e-mail
     const exists = await userModel.findByEmail(value.email);
     if (exists) return res.status(409).json({ message: "Email уже занят" });
 
-    // ③ Создаём пользователя. Роль фиксируем = 'user'
     const newUser = await userModel.create({ ...value, role: "user" });
 
-    // ④ Отдаём готовый объект (без пароля)
     res.status(201).json(newUser);
   } catch (err) {
     console.error(err);
@@ -37,7 +19,6 @@ const register = async (req, res) => {
   }
 };
 
-/* POST /auth/login */
 const login = async (req, res) => {
   const { error, value } = loginSchema.validate(req.body);
   if (error) return res.status(400).json({ message: error.message });
@@ -51,7 +32,6 @@ const login = async (req, res) => {
     if (!ok)
       return res.status(401).json({ message: "Неверные учётные данные" });
 
-    // Генерируем JWT — храним id и username
     const token = jwt.sign(
       { id: user.id, username: user.username, role: user.role },
       process.env.JWT_SECRET,
@@ -65,9 +45,7 @@ const login = async (req, res) => {
   }
 };
 
-/* GET /auth/me  (защищённый) */
 const me = (req, res) => {
-  // passport добавит user в req.user
   res.json(req.user);
 };
 
