@@ -1,37 +1,64 @@
-import pool from "../config/db.js";
+import sequelize from "../config/db.js";
+import { DataTypes, Model } from "sequelize";
 import bcrypt from "bcrypt";
 import { BCRYPT_ROUNDS } from "../config/constants.js";
 
-const create = async ({ username, email, password, role = "user" }) => {
-  const hash = await bcrypt.hash(password, BCRYPT_ROUNDS);
+class User extends Model {
+  async comparePassword(variant) {
+    return bcrypt.compare(variant, this.password);
+  }
+}
+User.init(
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    username: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    role: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+  },
+  {
+    sequelize,
+    tableName: "users",
+    timestamps: true,
+  }
+);
 
-  const { rows } = await pool.query(
-    `INSERT INTO users (username, email, password, role)
-       VALUES ($1, $2, $3, $4)
-       RETURNING id, username, email, role`,
-    [username, email, hash, role]
-  );
+User.beforeCreate(async (user) => {
+  user.password = await bcrypt.hash(user.password, BCRYPT_ROUNDS);
+});
+User.beforeUpdate(async (user) => {
+  if (user.changed("password")) {
+    user.password = await bcrypt.hash(user.password, BCRYPT_ROUNDS);
+  }
+});
 
-  return rows[0];
-};
+export const create = (data) =>
+  User.create(data, {
+    attributes: { exclude: ["password"] },
+  });
 
-const findByEmail = async (email) => {
-  const { rows } = await pool.query("SELECT * FROM users WHERE email = $1", [
-    email,
-  ]);
-  return rows[0];
-};
+export const findByEmail = (email) => User.findOne({ where: { email } });
 
-const findById = async (id) => {
-  const { rows } = await pool.query(
-    "SELECT id, username, email, role FROM users WHERE id = $1",
-    [id]
-  );
-  return rows[0];
-};
+export const findById = (id) =>
+  User.findByPk(id, {
+    attributes: { exclude: ["password"] },
+  });
 
-const comparePassword = async (plain, hash) => {
-  return bcrypt.compare(plain, hash);
-};
-
-export default { create, findByEmail, findById, comparePassword };
+export default User;

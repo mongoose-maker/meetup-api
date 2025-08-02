@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+import sequelize from "sequelize";
 import meetupRoutes from "./routes/meetup.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 import passport from "./config/passport.js";
@@ -18,6 +19,13 @@ app.use(errorHandler);
 
 app.use("/api/meetups", meetupRoutes);
 app.use("/auth", authRoutes);
+
+try {
+  await sequelize;
+  console.log("Соеденение с БД установлено");
+} catch (err) {
+  console.log("Соеденение с БД не установлено: ", err);
+}
 
 app.get("/", (req, res) => {
   res.send("API Works!");

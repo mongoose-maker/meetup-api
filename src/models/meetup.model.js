@@ -1,45 +1,63 @@
-import pool from "../config/db.js";
+import sequelize from "../config/db.js";
+import { DataTypes, Model } from "sequelize";
 
-const getAll = async () => {
-  const { rows } = await pool.query("SELECT * FROM meetups");
-  return rows;
-};
-const getById = async (id) => {
-  const { rows } = await pool.query("SELECT * FROM meetups Where id =$1", [id]);
-  return rows[0];
-};
-const create = async (data) => {
-  const { title, description, tags, date, location } = data;
-  const { rows } = await pool.query(
-    `INSERT INTO meetups (title, description, tags, date, location)
-       VALUES ($1,$2,$3,$4,$5) RETURNING *`,
-    [title, description, tags, date, location]
-  );
-  return rows[0];
-};
-const update = async (id, data) => {
-  const fields = [];
-  const values = [];
-  let idx = 1;
+class Meetup extends Model {}
 
-  for (const key in data) {
-    fields.push(`${key} = $${++idx}`);
-    values.push(data[key]);
+Meetup.init(
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    title: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    description: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    tags: {
+      type: DataTypes.ARRAY(DataTypes.STRING),
+      allowNull: false,
+    },
+    data: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    location: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+  },
+  {
+    sequelize,
+    tableName: "meetups",
+    timestamps: true,
   }
-  if (!fields.length) return null;
+);
 
-  values.unshift(id); // id будет $1
-  const { rows } = await pool.query(
-    `UPDATE meetups SET ${fields.join(", ")} WHERE id = $1 RETURNING *`,
-    values
-  );
-  return rows[0];
+export const getAll = async () => {
+  return await Meetup.findAll({ raw: true });
 };
-const remove = async (id) => {
-  const { rowCount } = await pool.query("DELETE FROM meetups WHERE id = $1", [
-    id,
-  ]);
-  return rowCount > 0;
+export const getById = async (id) => {
+  return await Meetup.findByPk(id, { raw: true });
+};
+export const create = async (data) => {
+  const row = await Meetup.create(data, { raw: true });
+  return row;
+};
+export const update = async (id, data) => {
+  const [rowsAffected, [row]] = await Meetup.update(data, {
+    where: { id },
+    returning: true,
+  });
+  return rowsAffected ? row.get({ plain: true }) : null;
+};
+export const remove = async (id) => {
+  const deleted = Meetup.destroy({ where: { id } });
+  return deleted > 0;
 };
 
-export default { getAll, getById, create, update, remove };
+export default Meetup;
