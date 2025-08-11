@@ -22,7 +22,7 @@ Meetup.init(
       type: DataTypes.ARRAY(DataTypes.STRING),
       allowNull: false,
     },
-    data: {
+    date: {
       type: DataTypes.DATE,
       allowNull: false,
     },
@@ -37,27 +37,4 @@ Meetup.init(
     timestamps: true,
   }
 );
-
-export const getAll = async () => {
-  return await Meetup.findAll({ raw: true });
-};
-export const getById = async (id) => {
-  return await Meetup.findByPk(id, { raw: true });
-};
-export const create = async (data) => {
-  const row = await Meetup.create(data, { raw: true });
-  return row;
-};
-export const update = async (id, data) => {
-  const [rowsAffected, [row]] = await Meetup.update(data, {
-    where: { id },
-    returning: true,
-  });
-  return rowsAffected ? row.get({ plain: true }) : null;
-};
-export const remove = async (id) => {
-  const deleted = Meetup.destroy({ where: { id } });
-  return deleted > 0;
-};
-
 export default Meetup;

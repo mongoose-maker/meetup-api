@@ -1,12 +1,12 @@
 import express from "express";
 const router = express.Router();
 
-import meetupController from "../controllers/meetup.controllers.js";
+import * as meetupController from "../controllers/meetup.controllers.js";
 import isAuth from "../middleware/auth.middleware.js";
 import isOrganizer from "../middleware/role.middleware.js";
 
 router.get("/", meetupController.getAllMeetups);
-router.get("/:id", meetupController.getMeetupById);
+router.get("/:id", meetupController.getMeetup);
 
 router.post("/", isAuth, isOrganizer, meetupController.createMeetup);
 

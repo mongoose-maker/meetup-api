@@ -49,16 +49,4 @@ User.beforeUpdate(async (user) => {
   }
 });
 
-export const create = (data) =>
-  User.create(data, {
-    attributes: { exclude: ["password"] },
-  });
-
-export const findByEmail = (email) => User.findOne({ where: { email } });
-
-export const findById = (id) =>
-  User.findByPk(id, {
-    attributes: { exclude: ["password"] },
-  });
-
 export default User;

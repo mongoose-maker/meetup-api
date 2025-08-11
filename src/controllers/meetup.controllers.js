@@ -1,130 +1,70 @@
-import meetupModel from "../models/meetup.model.js";
+import * as svc from "../services/meetup.service.js";
 import {
   meetupSchema,
   updateMeetupSchema,
-  idSchema,
 } from "../validators/meetup.validators.js";
 
-/* ------------------------- GET /api/meetups ------------------------- */
-const getAllMeetups = async (req, res) => {
+export const getAllMeetups = async (req, res, next) => {
   try {
-    const { tags, sort, page = 1, limit = 10 } = req.query;
+    const { tags, sort, page, limit } = req.query;
+    const tagList = tags
+      ? tags
+          .toLowerCase()
+          .split(",")
+          .map((t) => t.trim())
+      : undefined;
 
-    let results = await meetupModel.getAll();
-
-    if (tags) {
-      const tagList = tags
-        .toLowerCase()
-        .split(",")
-        .map((t) => t.trim());
-      results = results.filter((m) =>
-        m.tags.some((tag) => tagList.includes(tag.toLowerCase()))
-      );
-    }
-
-    if (sort) {
-      const isDesc = sort.startsWith("-");
-      const key = isDesc ? sort.slice(1) : sort;
-
-      results.sort((a, b) => {
-        let aVal = a[key];
-        let bVal = b[key];
-
-        if (key === "date") {
-          aVal = new Date(aVal);
-          bVal = new Date(bVal);
-        }
-
-        if (typeof aVal === "string") {
-          return isDesc ? bVal.localeCompare(aVal) : aVal.localeCompare(bVal);
-        }
-        return isDesc ? bVal - aVal : aVal - bVal;
-      });
-    }
-
-    const p = parseInt(page, 10);
-    const l = parseInt(limit, 10);
-    const start = (p - 1) * l;
-    const data = results.slice(start, start + l);
-
-    res.json({
-      total: results.length,
-      page: p,
-      limit: l,
-      data,
+    const { rows, count } = await svc.getAll({
+      tags: tagList,
+      sort,
+      page,
+      limit,
     });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Ошибка сервера" });
+    res.json({
+      total: count,
+      page: +page || 1,
+      limit: +limit || 10,
+      data: rows,
+    });
+  } catch (e) {
+    next(e);
   }
 };
 
-const getMeetupById = async (req, res) => {
-  const id = Number(req.params.id);
-  const { error } = idSchema.validate(id);
-  if (error) return res.status(400).json({ message: "Некорректный ID" });
-
+export const getMeetup = async (req, res, next) => {
   try {
-    const meetup = await meetupModel.getById(id);
-    if (!meetup) return res.status(404).json({ message: "Митап не найден" });
-    res.json(meetup);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Ошибка сервера" });
+    const row = await svc.getById(req.params.id);
+    return row ? res.json(row) : res.status(404).json({ message: "Not found" });
+  } catch (e) {
+    next(e);
   }
 };
 
-const createMeetup = async (req, res) => {
-  const { error, value } = meetupSchema.validate(req.body);
-  if (error) return res.status(400).json({ message: error.details[0].message });
-
+export const createMeetup = async (req, res, next) => {
   try {
-    const newMeetup = await meetupModel.create(value);
-    res.status(201).json(newMeetup);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Ошибка сервера" });
+    await meetupSchema.validateAsync(req.body);
+    const row = await svc.create({ ...req.body, ownerId: req.user?.id });
+    res.status(201).json(row);
+  } catch (e) {
+    next(e);
   }
 };
 
-const updateMeetup = async (req, res) => {
-  const id = Number(req.params.id);
-  const { error: idErr } = idSchema.validate(id);
-  if (idErr) return res.status(400).json({ message: "Некорректный ID" });
-
-  const { error: bodyErr, value } = updateMeetupSchema.validate(req.body);
-  if (bodyErr)
-    return res.status(400).json({ message: bodyErr.details[0].message });
-
+export const updateMeetup = async (req, res, next) => {
   try {
-    const updated = await meetupModel.update(id, value);
-    if (!updated) return res.status(404).json({ message: "Митап не найден" });
-    res.json(updated);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Ошибка сервера" });
+    await updateMeetupSchema.validateAsync(req.body);
+    const row = await svc.update(req.params.id, req.body);
+    return row ? res.json(row) : res.status(404).json({ message: "Not found" });
+  } catch (e) {
+    next(e);
   }
 };
 
-const deleteMeetup = async (req, res) => {
-  const id = Number(req.params.id);
-  const { error } = idSchema.validate(id);
-  if (error) return res.status(400).json({ message: "Некорректный ID" });
-
+export const deleteMeetup = async (req, res, next) => {
   try {
-    const removed = await meetupModel.remove(id);
-    if (!removed) return res.status(404).json({ message: "Митап не найден" });
-    res.json({ message: "Митап удалён" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Ошибка сервера" });
+    const ok = await svc.remove(req.params.id);
+    res.status(ok ? 204 : 404).end();
+  } catch (e) {
+    next(e);
   }
-};
-
-export default {
-  getAllMeetups,
-  getMeetupById,
-  createMeetup,
-  updateMeetup,
-  deleteMeetup,
 };
