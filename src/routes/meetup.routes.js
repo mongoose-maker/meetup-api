@@ -1,17 +1,26 @@
-import express from "express";
-const router = express.Router();
+import { Router } from "express";
 
-import * as meetupController from "../controllers/meetup.controllers.js";
-import isAuth from "../middleware/auth.middleware.js";
-import isOrganizer from "../middleware/role.middleware.js";
+export default function createMeetupRoutes(meetupController) {
+  const router = Router();
+  router.get("/", meetupController.getAllMeetups);
+  router.get("/:id", meetupController.getMeetup);
+  router.post("/", isAuth, isOrganizer, meetupController.createMeetup);
+  router.put("/:id", isAuth, isOrganizer, meetupController.updateMeetup);
+  router.delete("/:id", isAuth, isOrganizer, meetupController.deleteMeetup);
+  return router;
+}
 
-router.get("/", meetupController.getAllMeetups);
-router.get("/:id", meetupController.getMeetup);
+// import * as meetupController from "../controllers/meetup.controllers.js";
+// import isAuth from "../middleware/auth.middleware.js";
+// import isOrganizer from "../middleware/role.middleware.js";
 
-router.post("/", isAuth, isOrganizer, meetupController.createMeetup);
+// router.get("/", meetupController.getAllMeetups);
+// router.get("/:id", meetupController.getMeetup);
 
-router.put("/:id", isAuth, isOrganizer, meetupController.updateMeetup);
+// router.post("/", isAuth, isOrganizer, meetupController.createMeetup);
 
-router.delete("/:id", isAuth, isOrganizer, meetupController.deleteMeetup);
+// router.put("/:id", isAuth, isOrganizer, meetupController.updateMeetup);
 
-export default router;
+// router.delete("/:id", isAuth, isOrganizer, meetupController.deleteMeetup);
+
+// export default router;
