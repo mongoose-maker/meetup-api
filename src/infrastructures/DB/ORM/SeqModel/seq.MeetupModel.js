@@ -1,9 +1,9 @@
-import sequelize from "../config/db.js";
+import sequelize from "../../db.js";
 import { DataTypes, Model } from "sequelize";
 
-class Meetup extends Model {}
+class SeqMeetup extends Model {}
 
-Meetup.init(
+SeqMeetup.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -30,6 +30,15 @@ Meetup.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    owner_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: "users",
+        key: "id",
+      },
+      onDelete: "CASCADE",
+    },
   },
   {
     sequelize,
@@ -37,4 +46,4 @@ Meetup.init(
     timestamps: true,
   }
 );
-export default Meetup;
+export default SeqMeetup;

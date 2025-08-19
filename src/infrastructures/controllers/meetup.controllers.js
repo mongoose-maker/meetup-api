@@ -27,7 +27,7 @@ export class MeetupController {
       await meetupSchema.validateAsync(req.body);
       const row = await this.meetupService.createMeetup({
         ...req.body,
-        ownerId: req.user?.id,
+        owner_id: req.user?.id,
       });
       res.status(201).json(row);
     } catch (err) {

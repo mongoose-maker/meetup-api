@@ -1,8 +1,8 @@
 import { Op } from "sequelize";
-import { MeetupRepository } from "../../core/repositories/meetup.repository.js";
-import MeetupModel from "../ORM/sequelize/seq.MeetupModel.js";
+import { MeetupRepository } from "../../../../core/repositories/meetup.repository.js";
+import MeetupModel from "../../ORM/SeqModel/seq.MeetupModel.js";
 // Импортируем доменную модель для маппинга!
-import { Meetup } from "../../core/models/meetup.model.js";
+import { Meetup } from "../../../../core/models/meetup.model.js";
 
 export class SequelizeMeetupRepository extends MeetupRepository {
   // Приватный метод-маппер для преобразования данных из БД в доменную модель

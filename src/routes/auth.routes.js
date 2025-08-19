@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { AuthController } from "../infrastructures/controllers/auth.controller"; // импортировал и хз ошибка ли
+// import { AuthController } from "../infrastructures/controllers/auth.controller"; // импортировал и хз ошибка ли
 
 export default function createAuthRoutes(authController) {
   const router = Router();
-  router.post("/register", AuthController.register); // добавил так, хз ошибка ли
+  router.post("/register", authController.register); // добавил так, хз ошибка ли
   router.post("/login", authController.login);
   router.get("/me", authController.me);
   return router;

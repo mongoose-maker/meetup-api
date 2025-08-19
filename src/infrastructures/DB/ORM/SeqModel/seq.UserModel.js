@@ -1,14 +1,14 @@
-import sequelize from "../config/db.js";
+import sequelize from "../../db.js";
 import { DataTypes, Model } from "sequelize";
 import bcrypt from "bcrypt";
-import { BCRYPT_ROUNDS } from "../config/constants.js";
+import { BCRYPT_ROUNDS } from "../../../config/constants.js";
 
-class User extends Model {
+class SeqUser extends Model {
   async comparePassword(variant) {
     return bcrypt.compare(variant, this.password);
   }
 }
-User.init(
+SeqUser.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -40,13 +40,13 @@ User.init(
   }
 );
 
-User.beforeCreate(async (user) => {
+SeqUser.beforeCreate(async (user) => {
   user.password = await bcrypt.hash(user.password, BCRYPT_ROUNDS);
 });
-User.beforeUpdate(async (user) => {
+SeqUser.beforeUpdate(async (user) => {
   if (user.changed("password")) {
     user.password = await bcrypt.hash(user.password, BCRYPT_ROUNDS);
   }
 });
 
-export default User;
+export default SeqUser;

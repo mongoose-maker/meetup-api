@@ -1,30 +1,33 @@
 import express from "express";
 import dotenv from "dotenv";
 
-import sequelize from "./config/db.js";
-import User from "./models/user.model.js";
-import Meetup from "./models/meetup.model.js";
+import SeqUser from "../src/infrastructures/DB/ORM/SeqModel/seq.UserModel.js";
+import SeqMeetup from "../src/infrastructures/DB/ORM/SeqModel/seq.MeetupModel.js";
+import sequelize from "./infrastructures/DB/db.js";
+
+import { User } from "./core/models/user.model.js";
+import { Meetup } from "./core/models/meetup.model.js";
 
 // import meetupRoutes from "./routes/meetup.routes.js";
 // import authRoutes from "./routes/auth.routes.js";
-import passport from "./config/passport.js";
-import errorHandler from "./middleware/errorHandler.js";
+import passport from "./infrastructures/config/passport.js";
+import errorHandler from "./infrastructures/middleware/errorHandler.js";
 
 // 1. Репозитории (конкретные реализации)
-import { SequelizeMeetupRepository } from "./src/infrastructure/repositories/SequelizeMeetupRepository.js";
-import { SequelizeUserRepository } from "./src/infrastructure/repositories/SequelizeUserRepository.js";
+import { SequelizeMeetupRepository } from "./infrastructures/DB/ORM/seqRepositories/SeqMeetupRepo.js";
+import { SequelizeUserRepository } from "./infrastructures/DB/ORM/seqRepositories/SeqUserRepo.js";
 
 // 2. Сервисы
-import { MeetupService } from "./src/application/services/meetup.service.js";
-import { UserService } from "./src/application/services/user.service.js";
+import { MeetupService } from "./application/services/meetup.service.js";
+import { UserService } from "./application/services/user.service.js";
 
 // 3. Контроллеры
-import { MeetupController } from "./src/infrastructure/controllers/meetup.controller.js";
-import { AuthController } from "./src/infrastructure/controllers/auth.controller.js";
+import { MeetupController } from "./infrastructures/controllers/meetup.controllers.js";
+import { AuthController } from "./infrastructures/controllers/auth.controller.js";
 
 // 4. Роуты (теперь они должны принимать контроллеры)
-import createMeetupRoutes from "./src/infrastructure/routes/meetup.routes.js";
-import createAuthRoutes from "./src/infrastructure/routes/auth.routes.js";
+import createMeetupRoutes from "./routes/meetup.routes.js";
+import createAuthRoutes from "./routes/auth.routes.js";
 
 dotenv.config();
 
@@ -46,8 +49,8 @@ const userService = new UserService(userRepository);
 const meetupController = new MeetupController(meetupService);
 const authController = new AuthController(userService);
 
-User.hasMany(Meetup, { foreignKey: "ownerId", as: "meetups" });
-Meetup.belongsTo(User, { foreignKey: "ownerId", as: "owner" });
+SeqUser.hasMany(SeqMeetup, { foreignKey: "owner_id", as: "meetups" });
+SeqMeetup.belongsTo(SeqUser, { foreignKey: "owner_id", as: "owner" });
 
 try {
   await sequelize.authenticate();

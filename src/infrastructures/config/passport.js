@@ -1,7 +1,7 @@
 import "dotenv/config";
 import passport from "passport";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
-import userModel from "../models/user.model.js";
+import { User } from "../../core/models/user.model.js";
 
 const opts = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -11,7 +11,7 @@ const opts = {
 passport.use(
   new JwtStrategy(opts, async (payload, done) => {
     try {
-      const user = await userModel.findById(payload.id);
+      const user = await User.findById(payload.id);
       if (!user) return done(null, false);
       return done(null, user);
     } catch (err) {

@@ -1,7 +1,7 @@
-import { UserRepository } from "../../core/repositories/user.repository.js";
-import UserModel from "../ORM/sequelize/seq.UserModel.js";
+import { UserRepository } from "../../../../core/repositories/user.repository.js";
+import UserModel from "../../ORM/SeqModel/seq.UserModel.js";
 // Импортируем доменную модель для маппинга!
-import { User } from "../../core/models/user.model.js";
+import { User } from "../../../../core/models/user.model.js";
 
 export class SequelizeUserRepository extends UserRepository {
   // Приватный метод-маппер
