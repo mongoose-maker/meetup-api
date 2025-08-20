@@ -1,29 +1,36 @@
 export class AuthController {
-  constructor(userServices) {
-    this.userServices = userServices;
+  constructor(userService) {
+    this.userService = userService;
   }
   register = async (req, res, next) => {
     try {
-      if (await this.userServices.findByEmail(req.body.email)) {
-        return res.status(409).json({ message: "email already used" });
+      const createdUser = await this.userService.registerUser(req.body);
+      if (!createdUser) {
+        return res.status(409).json({ message: "Email already used" });
       }
-      const created = await this.userServices.create(req.body);
-      res.status(201).json(created);
+      const { password, ...userResponse } = createdUser;
+      res.status(201).json(userResponse);
     } catch (err) {
       next(err);
     }
   };
   login = async (req, res, next) => {
     try {
-      const user = await this.userServices.findByEmailWithPassword(
-        req.body.email
-      );
-      if (!user || !(await user.comparePassword(req.body.password))) {
+      const { email, password } = req.body;
+      const user = await this.userService.authenticate(email, password); // Всю логику аутентификации делегируем сервису
+
+      if (!user) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
+      // Здесь должна быть логика создания токена (JWT)
+      // const token = createToken(user);
+      // res.json({ user, token });
+      res.json(user); // Пока просто вернем пользователя
     } catch (err) {
       next(err);
     }
   };
-  me = (req, res) => res.json(req.user);
+  me = (req, res) => {
+    res.json(req.user);
+  };
 }

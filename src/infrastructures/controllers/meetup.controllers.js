@@ -1,3 +1,5 @@
+import { meetupSchema } from "../validators/meetup.validators.js";
+import { updateMeetupSchema } from "../validators/meetup.validators.js";
 export class MeetupController {
   constructor(meetupService) {
     this.meetupService = meetupService;
@@ -51,7 +53,7 @@ export class MeetupController {
   };
   deleteMeetup = async (req, res, next) => {
     try {
-      const ok = await this.meetupService.deleteMeetup(req.params.id);
+      const ok = await this.meetupService.deleteMeetup(req.params.id); /// наверное должно быть await idSchema.deleteMeetup
       res.status(ok ? 204 : 404).end();
     } catch (err) {
       next(err);

@@ -1,46 +1,34 @@
-import { User } from "../../core/models/user.model.js";
-import bcrypt from "bcrypt";
-import { BCRYPT_ROUNDS } from "../../infrastructures/config/constants.js";
-
 export class UserService {
   constructor(userRepository) {
     this.userRepository = userRepository;
   }
   async registerUser(userData) {
-    // Хеширование пароля - это логика приложения, а не домена
-    const hashedPassword = await bcrypt.hash(userData.password, BCRYPT_ROUNDS);
+    // 1. Проверяем, существует ли пользователь
+    const existingUser = await this.userRepository.findByEmail(userData.email);
+    if (existingUser) {
+      return null; // Возвращаем null, чтобы контроллер понял причину
+    }
 
-    const createUserData = {
-      ...userData,
-      password: hashedPassword,
-    };
-    return this.userRepository.create(createUserData);
+    // 2. Создаем пользователя (хеширование пароля происходит в Sequelize hook'ах)
+    const newUser = await this.userRepository.create(userData);
+    return newUser;
+  }
+  async authenticate(email, password) {
+    // 1. Находим пользователя по email
+    const user = await this.userRepository.findByEmail(email);
+    if (!user) {
+      return null; // Пользователь не найден
+    }
+    // 2. Используем доменную модель для сравнения пароля
+    const isPasswordValid = await user.comparePassword(password);
+    if (!isPasswordValid) {
+      return null; // Пароль неверный
+    }
+    // 3. Убираем хеш пароля перед отправкой данных
+    const { password: _, ...userResponse } = user;
+    return userResponse;
   }
   async getUserById(id) {
     return this.userRepository.findById(id);
-  }
-  // Метод для аутентификации может выглядеть так
-  async authenticate(email, password) {
-    const userModel = await this.userRepository.findByEmail(email);
-    if (!userModel) {
-      return null;
-    }
-    // Создаем экземпляр доменной модели, чтобы использовать ее логику
-    const user = new User(
-      userModel.id,
-      userModel.username,
-      userModel.email,
-      userModel.password,
-      userModel.role
-    );
-
-    const isPasswordValid = await user.comparePassword(password);
-
-    if (!isPasswordValid) {
-      return null;
-    }
-
-    const { password: _, ...userData } = user;
-    return userData;
   }
 }

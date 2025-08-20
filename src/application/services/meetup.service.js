@@ -5,16 +5,16 @@ export class MeetupService {
   async getAllMeetups(options) {
     return this.meetupRepository.getAll(options);
   }
-  async getById(id) {
+  async getMeetupById(id) {
     return this.meetupRepository.getById(id);
   }
   async createMeetup(data) {
     return this.meetupRepository.create(data);
   }
-  async updateMeetup(data, id) {
-    return this.meetupRepository.update(data, id);
+  async updateMeetup(id, data) {
+    return this.meetupRepository.update(id, data);
   }
   async deleteMeetup(id) {
-    return this.meetupRepository.delete(id);
+    return this.meetupRepository.remove(id);
   }
 }
