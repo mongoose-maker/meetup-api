@@ -35,20 +35,16 @@ export class SequelizeMeetupRepository extends MeetupRepository {
       offset: (pages - 1) * limit,
       raw: true,
     });
-
-    // Преобразуем каждый элемент массива в доменную модель
     return { count, rows: rows.map(this._toDomain) };
   }
 
   async getById(id) {
     const meetupData = await MeetupModel.findByPk(id, { raw: true });
-    // Возвращаем экземпляр доменной модели
     return this._toDomain(meetupData);
   }
 
   async create(data) {
     const row = await MeetupModel.create(data);
-    // Возвращаем экземпляр доменной модели
     return this._toDomain(row.get({ plain: true }));
   }
 
@@ -57,7 +53,6 @@ export class SequelizeMeetupRepository extends MeetupRepository {
       where: { id },
       returning: true,
     });
-    // Возвращаем экземпляр доменной модели
     return rowsAffected ? this._toDomain(row.get({ plain: true })) : null;
   }
 

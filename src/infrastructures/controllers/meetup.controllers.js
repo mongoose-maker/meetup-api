@@ -53,7 +53,7 @@ export class MeetupController {
   };
   deleteMeetup = async (req, res, next) => {
     try {
-      const ok = await this.meetupService.deleteMeetup(req.params.id); /// наверное должно быть await idSchema.deleteMeetup
+      const ok = await this.meetupService.deleteMeetup(req.params.id);
       res.status(ok ? 204 : 404).end();
     } catch (err) {
       next(err);
