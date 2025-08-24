@@ -1,3 +1,5 @@
+import { createToken } from "../utils/createToken.js";
+
 export class AuthController {
   constructor(userService) {
     this.userService = userService;
@@ -23,9 +25,13 @@ export class AuthController {
         return res.status(401).json({ message: "Invalid credentials" });
       }
       // Здесь должна быть логика создания токена (JWT)
-      // const token = createToken(user);
-      // res.json({ user, token });
-      res.json(user);
+      const payload = {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+      };
+      const token = createToken(payload);
+      res.json({ user, token });
     } catch (err) {
       next(err);
     }
